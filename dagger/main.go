@@ -54,6 +54,7 @@ func (m *Ci) Build(
 
 func (m *Ci) Test() *Container {
 	return dag.Go(GoOpts{Version: goVersion}).
+		WithSource(m.Source).
 		Exec([]string{"go", "test", "-v", "./..."})
 }
 
