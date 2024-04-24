@@ -10,6 +10,7 @@ import (
 const (
 	goVersion           = "1.22.2"
 	golangciLintVersion = "v1.57.2"
+	trivyImageTag       = "0.50.2"
 )
 
 type Ci struct {
@@ -68,6 +69,20 @@ func (m *Ci) Lint() *Container {
 		})
 }
 
+func (m *Ci) SecurityScan(ctx context.Context) error {
+	ctr := m.Source.DockerBuild()
+
+	_, err := dag.Trivy().ImageLocal(ctx, ctr.AsTarball(), TrivyImageLocalOpts{
+		Severity: "HIGH,CRITICAL",
+		ExitCode: 1,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Ci) Ci(ctx context.Context) error {
 	p := pool.New().WithErrors().WithContext(ctx)
 
@@ -88,6 +103,8 @@ func (m *Ci) Ci(ctx context.Context) error {
 
 		return err
 	})
+
+	p.Go(m.SecurityScan)
 
 	return p.Wait()
 }
