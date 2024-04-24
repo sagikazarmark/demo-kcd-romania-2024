@@ -3,8 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
-	"strings"
 
 	"github.com/sourcegraph/conc/pool"
 )
@@ -46,40 +44,27 @@ func New(
 func (m *Ci) Build(
 	// +optional
 	platform Platform,
-) *Container {
-	return dag.Container().
-		From(fmt.Sprintf("golang:%s", goVersion)).
-		WithWorkdir("/work").
-		WithMountedDirectory("/work", m.Source).
-		With(func(c *Container) *Container {
-			if platform != "" {
-				segments := strings.SplitN(string(platform), "/", 3)
-
-				c = c.
-					WithEnvVariable("GOOS", segments[0]).
-					WithEnvVariable("GOARCH", segments[1])
-
-				if len(segments) > 2 {
-					c = c.WithEnvVariable("GOARM", segments[2])
-				}
-			}
-
-			return c
-		}).
-		WithExec([]string{"mkdir", "build"}).
-		WithExec([]string{"go", "build", "-trimpath", "-o", "build/app", "."})
+) *File {
+	return dag.Go(GoOpts{Version: goVersion}).
+		Build(m.Source, GoBuildOpts{
+			Platform: string(platform),
+			Trimpath: true,
+		})
 }
 
 func (m *Ci) Test() *Container {
-	return dag.Container().
-		From(fmt.Sprintf("golang:%s", goVersion)).
-		WithWorkdir("/work").
-		WithMountedDirectory("/work", m.Source).
-		WithExec([]string{"go", "test", "-v", "./..."})
+	return dag.Go(GoOpts{Version: goVersion}).
+		Exec([]string{"go", "test", "-v", "./..."})
 }
 
 func (m *Ci) Lint() *Container {
-	return dag.Container()
+	return dag.GolangciLint(GolangciLintOpts{
+		Version:   golangciLintVersion,
+		GoVersion: goVersion,
+	}).
+		Run(m.Source, GolangciLintRunOpts{
+			Verbose: true,
+		})
 }
 
 func (m *Ci) Ci(ctx context.Context) error {

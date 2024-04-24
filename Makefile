@@ -11,7 +11,7 @@ ci: ## Run all builds and checks
 build: ## Build all binaries
 	@mkdir -p build
 	# go build -trimpath -o build/app .
-	dagger call --source .:default build --platform darwin/arm64 file --path /work/build/app -o build/app
+	dagger call --source .:default build --platform darwin/arm64 -o build/app
 
 .PHONY: run
 run: build ## Build and run the application
