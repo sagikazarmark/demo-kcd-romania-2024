@@ -1,0 +1,19 @@
+{
+  "name": "ci",
+  "sdk": "go",
+  "source": "dagger",
+  "engineVersion": "v0.11.1",
+  "views": [
+    {
+      "name": "default",
+      "patterns": [
+        "!.devenv",
+        "!.direnv",
+        "!build"
+      ]
+    }
+  ],
+  "codegen": {
+    "automaticGitignore": true
+  }
+}
