@@ -4,12 +4,14 @@ export PATH := $(abspath bin/):${PATH}
 OS = $(shell uname | tr A-Z a-z)
 
 .PHONY: ci
-ci: build test lint ## Run all builds and checks
+ci: ## Run all builds and checks
+	dagger call --source .:default ci
 
 .PHONY: build
 build: ## Build all binaries
 	@mkdir -p build
-	go build -trimpath -o build/app .
+	# go build -trimpath -o build/app .
+	dagger call --source .:default build --platform darwin/arm64 file --path /work/build/app -o build/app
 
 .PHONY: run
 run: build ## Build and run the application
@@ -17,11 +19,13 @@ run: build ## Build and run the application
 
 .PHONY: test
 test: ## Run tests
-	go test -v ./...
+	# go test -v ./...
+	dagger call --source .:default test stdout
 
 .PHONY: lint
 lint: ## Run linter
-	golangci-lint run
+	# golangci-lint run
+	dagger call --source .:default lint stdout
 
 # Dependency versions
 GOLANGCI_VERSION ?= 1.57.2

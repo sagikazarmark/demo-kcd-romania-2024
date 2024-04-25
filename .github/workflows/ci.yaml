@@ -11,53 +11,52 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Run pipeline
+        uses: dagger/dagger-for-github@eba69b4dddb54eddfdb51a88eb7fd86957137630 # v5.4.0
         with:
-          go-version: "1.22.2"
-
-      - name: Build
-        run: go build .
+          verb: call
+          module: github.com/${{ github.repository }}@${{ github.ref }}
+          args: --ref ${{ github.ref }} build
+          version: "0.11.1"
 
   test:
     name: Test
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Run pipeline
+        uses: dagger/dagger-for-github@eba69b4dddb54eddfdb51a88eb7fd86957137630 # v5.4.0
         with:
-          go-version: "1.22.2"
-
-      - name: Test
-        run: go test -v ./...
+          verb: call
+          module: github.com/${{ github.repository }}@${{ github.ref }}
+          args: --ref ${{ github.ref }} test
+          version: "0.11.1"
 
   lint:
     name: Lint
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Run pipeline
+        uses: dagger/dagger-for-github@eba69b4dddb54eddfdb51a88eb7fd86957137630 # v5.4.0
         with:
-          go-version: "1.22.2"
+          verb: call
+          module: github.com/${{ github.repository }}@${{ github.ref }}
+          args: --ref ${{ github.ref }} lint
+          version: "0.11.1"
 
-      - name: Set up GolangCI Lint
-        uses: golangci/golangci-lint-action@v3
+  ci:
+    name: CI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run pipeline
+        uses: dagger/dagger-for-github@eba69b4dddb54eddfdb51a88eb7fd86957137630 # v5.4.0
         with:
-          version: v1.57.2
-
-      - name: Lint
-        run: golangci-lint run --out-format github-actions
+          verb: call
+          module: github.com/${{ github.repository }}@${{ github.ref }}
+          args: --ref ${{ github.ref }} ci
+          version: "0.11.1"
 
   artifacts:
     name: Artifacts
