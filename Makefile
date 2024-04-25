@@ -20,12 +20,12 @@ run: build ## Build and run the application
 .PHONY: test
 test: ## Run tests
 	# go test -v ./...
-	dagger call --source .:default test
+	dagger call --source .:default test stdout
 
 .PHONY: lint
 lint: ## Run linter
 	# golangci-lint run
-	dagger call --source .:default lint
+	dagger call --source .:default lint stdout
 
 # Dependency versions
 GOLANGCI_VERSION ?= 1.57.2
